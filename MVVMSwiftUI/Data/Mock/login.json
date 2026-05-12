@@ -1,0 +1,13 @@
+{
+    "statusCode": 200,
+    "message": "Login successful",
+    "data": {
+        "accessToken": "mock_access_token_abc123",
+        "refreshToken": "mock_refresh_token_xyz789",
+        "user": {
+            "id": "user_001",
+            "name": "Test User",
+            "email": "test@test.com"
+        }
+    }
+}

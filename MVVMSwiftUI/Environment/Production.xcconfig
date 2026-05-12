@@ -1,0 +1,21 @@
+//
+//  Production.xcconfig
+//  VMPatternSwiftUI
+//
+//  Created by trinh.giang.dong on 3/25/26.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+IS_DEV = NO
+
+SUPPORT_EMAIL = demo@gmail.com
+
+APP_STORE_ID = 66668888
+
+TERMS_OF_USE_URL = https:/$()/apple.com
+
+PRIVACY_POLICY_URL = https:/$()/apple.com
+
+BASE_URL = https:/$()/api.dev.example.com

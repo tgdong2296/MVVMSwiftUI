@@ -1,0 +1,13 @@
+{
+    "statusCode": 200,
+    "message": "Registration successful",
+    "data": {
+        "accessToken": "mock_access_token_new_user",
+        "refreshToken": "mock_refresh_token_new_user",
+        "user": {
+            "id": "user_002",
+            "name": "New User",
+            "email": "newuser@test.com"
+        }
+    }
+}
