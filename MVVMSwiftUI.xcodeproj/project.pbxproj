@@ -15,7 +15,7 @@
 		9E1E18002FB36F310041ADDB /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 9E1E17FF2FB36F310041ADDB /* SDWebImageSwiftUI */; };
 		9E1E18112FB374D80041ADDB /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9E1E18102FB374D80041ADDB /* FactoryKit */; };
 		9E1E18132FB374D80041ADDB /* FactoryTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 9E1E18122FB374D80041ADDB /* FactoryTesting */; };
-		9E1E18152FB374D80041ADDB /* FactoryKit in Frameworks (Tests) */ = {isa = PBXBuildFile; productRef = 9E1E18102FB374D80041ADDB /* FactoryKit */; };
+		9E1E18152FB374D80041ADDB /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9E1E18102FB374D80041ADDB /* FactoryKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9E6C25DD2FB5CB2800E81EBD /* MVVMSwiftUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; path = MVVMSwiftUI.xctestplan; sourceTree = "<group>"; };
 		9EC86A452FB32BFD0027946F /* MVVMSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MVVMSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EC86A522FB32C000027946F /* MVVMSwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MVVMSwiftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EC86A5C2FB32C000027946F /* MVVMSwiftUIUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MVVMSwiftUIUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -92,7 +93,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9E1E18132FB374D80041ADDB /* FactoryTesting in Frameworks */,
-				9E1E18152FB374D80041ADDB /* FactoryKit in Frameworks (Tests) */,
+				9E1E18152FB374D80041ADDB /* FactoryKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +110,7 @@
 		9EC86A3C2FB32BFD0027946F = {
 			isa = PBXGroup;
 			children = (
+				9E6C25DD2FB5CB2800E81EBD /* MVVMSwiftUI.xctestplan */,
 				9EC86A472FB32BFD0027946F /* MVVMSwiftUI */,
 				9EC86A552FB32C000027946F /* MVVMSwiftUITests */,
 				9EC86A5F2FB32C000027946F /* MVVMSwiftUIUITests */,

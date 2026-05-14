@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "698F8489-BA57-4002-B060-4950E4232E91",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:MVVMSwiftUI.xcodeproj",
+      "identifier" : "9EC86A442FB32BFD0027946F",
+      "name" : "MVVMSwiftUI"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:MVVMSwiftUI.xcodeproj",
+        "identifier" : "9EC86A512FB32C000027946F",
+        "name" : "MVVMSwiftUITests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:MVVMSwiftUI.xcodeproj",
+        "identifier" : "9EC86A5B2FB32C000027946F",
+        "name" : "MVVMSwiftUIUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
