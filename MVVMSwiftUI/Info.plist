@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>APP_STORE_ID</key>
+	<string>${APP_STORE_ID}</string>
+	<key>BASE_URL</key>
+	<string>${BASE_URL}</string>
+	<key>IS_DEV</key>
+	<string>${IS_DEV}</string>
+	<key>PRIVACY_POLICY_URL</key>
+	<string>${PRIVACY_POLICY_URL}</string>
+	<key>SUPPORT_EMAIL</key>
+	<string>${SUPPORT_EMAIL}</string>
+	<key>TERMS_OF_USE_URL</key>
+	<string>${TERMS_OF_USE_URL}</string>
+</dict>
+</plist>

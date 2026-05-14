@@ -26,8 +26,10 @@ final class RepoDetailViewModel {
 
 extension Container {
     func repoDetailViewModel(repository: GitHubRepo) -> Factory<RepoDetailViewModel> {
-        Factory(self) { @MainActor in
-            RepoDetailViewModel(repository: repository)
+        Factory(self) {
+            MainActor.assumeIsolated {
+                RepoDetailViewModel(repository: repository)
+            }
         }
     }
 }

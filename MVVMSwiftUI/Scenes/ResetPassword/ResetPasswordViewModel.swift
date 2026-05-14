@@ -21,58 +21,50 @@ final class ResetPasswordViewModel {
 
     // MARK: - Dependencies
 
-    @ObservationIgnored
-    @Injected(\.authApiService)
-    private var authService
+    @Injected(\.authUseCase)
+    @ObservationIgnored private var authUseCase
 
     // MARK: - State
 
-    var isLoading: Bool = false
+    var viewState: ViewState = .indie
     var resetStep: ResetStep = .initial
     private(set) var resetEmail: String = ""
+
+    var isLoading: Bool { viewState == .loading }
 
     // MARK: - Actions
 
     func requestOTP(email: String) async {
-        isLoading = true
-        defer { isLoading = false }
+        viewState = .loading
         do {
-            _ = try await authService.requestWrapped(
-                .requestOTP(email: email),
-                type: EmptyResponse.self
-            )
+            try await authUseCase.requestOTP(email: email)
             resetEmail = email
             resetStep = .otpSent
+            viewState = .success
         } catch {
-            // Error handling can be expanded as needed
+            viewState = .error(error.localizedDescription)
         }
     }
 
     func verifyOTP(otp: String) async {
-        isLoading = true
-        defer { isLoading = false }
+        viewState = .loading
         do {
-            _ = try await authService.requestWrapped(
-                .verifyOTP(email: resetEmail, otp: otp),
-                type: EmptyResponse.self
-            )
+            try await authUseCase.verifyOTP(email: resetEmail, otp: otp)
             resetStep = .otpVerified
+            viewState = .success
         } catch {
-            // Error handling can be expanded as needed
+            viewState = .error(error.localizedDescription)
         }
     }
 
     func resetPassword(newPassword: String) async {
-        isLoading = true
-        defer { isLoading = false }
+        viewState = .loading
         do {
-            _ = try await authService.requestWrapped(
-                .resetPassword(email: resetEmail, otp: "", newPassword: newPassword),
-                type: EmptyResponse.self
-            )
+            try await authUseCase.resetPassword(email: resetEmail, otp: "", newPassword: newPassword)
             resetStep = .completed
+            viewState = .success
         } catch {
-            // Error handling can be expanded as needed
+            viewState = .error(error.localizedDescription)
         }
     }
 
@@ -87,8 +79,10 @@ final class ResetPasswordViewModel {
 extension Container {
 
     var resetPasswordViewModel: Factory<ResetPasswordViewModel> {
-        Factory(self) { @MainActor in
-            ResetPasswordViewModel()
+        Factory(self) {
+            MainActor.assumeIsolated {
+                ResetPasswordViewModel()
+            }
         }
         .singleton
     }

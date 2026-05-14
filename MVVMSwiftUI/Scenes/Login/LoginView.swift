@@ -131,8 +131,10 @@ struct LoginView: View {
 extension Container {
     
     func loginView() -> Factory<LoginView> {
-        Factory(self) { @MainActor in
-            LoginView(viewModel: self.loginViewModel())
+        Factory(self) {
+            MainActor.assumeIsolated {
+                LoginView(viewModel: self.loginViewModel())
+            }
         }
     }
 }

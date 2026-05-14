@@ -132,8 +132,10 @@ struct NewPasswordView: View {
 extension Container {
 
     func newPasswordView() -> Factory<NewPasswordView> {
-        Factory(self) { @MainActor in
-            NewPasswordView(viewModel: self.resetPasswordViewModel())
+        Factory(self) {
+            MainActor.assumeIsolated {
+                NewPasswordView(viewModel: self.resetPasswordViewModel())
+            }
         }
     }
 }

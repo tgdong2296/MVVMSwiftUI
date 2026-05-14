@@ -103,8 +103,10 @@ struct EnterEmailView: View {
 extension Container {
 
     func enterEmailView() -> Factory<EnterEmailView> {
-        Factory(self) { @MainActor in
-            EnterEmailView(viewModel: self.resetPasswordViewModel())
+        Factory(self) {
+            MainActor.assumeIsolated {
+                EnterEmailView(viewModel: self.resetPasswordViewModel())
+            }
         }
     }
 }

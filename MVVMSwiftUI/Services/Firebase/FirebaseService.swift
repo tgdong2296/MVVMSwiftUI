@@ -18,7 +18,7 @@ final class FirebaseService: FirebaseServiceType {
 // MARK: - Factory Registration
 extension Container {
     var firebaseService: Factory<FirebaseServiceType> {
-        Factory(self) { @MainActor in FirebaseService() }
+        Factory(self) { MainActor.assumeIsolated { FirebaseService() } }
             .singleton
     }
 }

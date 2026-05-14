@@ -72,8 +72,10 @@ extension AuthenCoordinator: CoordinatorType {
 extension Container {
     
     var authenCoordinator: Factory<AuthenCoordinator> {
-        Factory(self) { @MainActor in
-            AuthenCoordinator()
+        Factory(self) {
+            MainActor.assumeIsolated {
+                AuthenCoordinator()
+            }
         }
     }
 }

@@ -14,8 +14,8 @@ final class HomeViewModel {
 
     // MARK: - Dependencies
 
-    @ObservationIgnored
-    @Injected(\.gitHubApiService) private var apiService
+    @Injected(\.searchRepositoriesUseCase)
+    @ObservationIgnored private var searchRepositoriesUseCase
 
     // MARK: - State
 
@@ -39,12 +39,13 @@ final class HomeViewModel {
         hasMorePages = true
 
         do {
-            let response = try await apiService.request(
-                .searchRepositories(query: searchQuery, page: currentPage, perPage: perPage),
-                type: GitHubSearchResponse.self
+            let items = try await searchRepositoriesUseCase.execute(
+                query: searchQuery,
+                page: currentPage,
+                perPage: perPage
             )
-            repositories = response.items
-            hasMorePages = response.items.count == perPage
+            repositories = items
+            hasMorePages = items.count == perPage
             viewState = .success
         } catch {
             viewState = .error(error.localizedDescription)
@@ -59,12 +60,13 @@ final class HomeViewModel {
         currentPage += 1
 
         do {
-            let response = try await apiService.request(
-                .searchRepositories(query: searchQuery, page: currentPage, perPage: perPage),
-                type: GitHubSearchResponse.self
+            let items = try await searchRepositoriesUseCase.execute(
+                query: searchQuery,
+                page: currentPage,
+                perPage: perPage
             )
-            repositories.append(contentsOf: response.items)
-            hasMorePages = response.items.count == perPage
+            repositories.append(contentsOf: items)
+            hasMorePages = items.count == perPage
         } catch {
             currentPage -= 1
         }
@@ -81,8 +83,10 @@ final class HomeViewModel {
 
 extension Container {
     var homeViewModel: Factory<HomeViewModel> {
-        Factory(self) { @MainActor in
-            HomeViewModel()
+        Factory(self) {
+            MainActor.assumeIsolated {
+                HomeViewModel()
+            }
         }
     }
 }

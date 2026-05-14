@@ -12,9 +12,8 @@ final class RegisterViewModel {
 
     // MARK: - Dependencies
 
-    @ObservationIgnored
-    @Injected(\.authApiService)
-    private var authService
+    @Injected(\.authUseCase)
+    @ObservationIgnored private var authUseCase
 
     // MARK: - State
 
@@ -25,10 +24,7 @@ final class RegisterViewModel {
     func register(email: String, password: String) async throws {
         isLoading = true
         defer { isLoading = false }
-        _ = try await authService.requestWrapped(
-            .register(name: "", email: email, password: password),
-            type: EmptyResponse.self
-        )
+        try await authUseCase.register(name: "", email: email, password: password)
     }
 }
 
@@ -37,8 +33,10 @@ final class RegisterViewModel {
 extension Container {
 
     var registerViewModel: Factory<RegisterViewModel> {
-        Factory(self) { @MainActor in
-            RegisterViewModel()
+        Factory(self) {
+            MainActor.assumeIsolated {
+                RegisterViewModel()
+            }
         }
     }
 }

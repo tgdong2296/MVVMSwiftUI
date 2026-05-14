@@ -11,7 +11,7 @@ import FactoryKit
 // MARK: - Protocol
 
 @MainActor
-protocol ThemeStoreType: AgreegateType {
+protocol ThemeStoreType {
     var currentTheme: AppTheme { get }
     
     func setTheme(_ theme: AppTheme)
@@ -39,7 +39,6 @@ final class ThemeStore: ThemeStoreType {
     @ObservationIgnored private var userDefaultsService
     
     // MARK: - State
-    private(set) var state: ViewState = .indie
     
     // MARK: - Properties
     private(set) var currentTheme: AppTheme = .system
@@ -80,10 +79,12 @@ final class ThemeStore: ThemeStoreType {
 // MARK: - Factory Registration
 extension Container {
     var themeStore: Factory<ThemeStore> {
-        Factory(self) { @MainActor in
-            let store = ThemeStore()
-            store.restore()
-            return store
+        Factory(self) {
+            MainActor.assumeIsolated {
+                let store = ThemeStore()
+                store.restore()
+                return store
+            }
         }
         .singleton
     }

@@ -134,8 +134,10 @@ struct RegisterView: View {
 extension Container {
     
     func registerView() -> Factory<RegisterView> {
-        Factory(self) { @MainActor in
-            RegisterView(viewModel: self.registerViewModel())
+        Factory(self) {
+            MainActor.assumeIsolated {
+                RegisterView(viewModel: self.registerViewModel())
+            }
         }
     }
 }

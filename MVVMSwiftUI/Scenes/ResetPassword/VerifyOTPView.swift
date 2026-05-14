@@ -28,15 +28,17 @@ struct VerifyOTPView: View {
     }
 
     var body: some View {
-        VStack(alignment: .center, spacing: 32) {
-            VStack(spacing: 16) {
-                headerView
-                otpField
-            }
+        CommonContainerView(viewState: viewModel.viewState) {
+            VStack(alignment: .center, spacing: 32) {
+                VStack(spacing: 16) {
+                    headerView
+                    otpField
+                }
 
-            verifyButton
+                verifyButton
+            }
+            .padding(.horizontal, 24)
         }
-        .padding(.horizontal, 24)
         .navigationTitle("Verify OTP")
         .onChange(of: viewModel.resetStep) { _, newStep in
             if newStep == .otpVerified {
@@ -78,20 +80,13 @@ struct VerifyOTPView: View {
                 await viewModel.verifyOTP(otp: otp)
             }
         } label: {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView()
-                        .tint(.white)
-                } else {
-                    Text("Verify")
-                        .fontWeight(.semibold)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(isSubmitDisabled ? themeStore.disabledColor : themeStore.primaryColor)
-            .foregroundStyle(themeStore.onPrimaryColor)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            Text("Verify")
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(isSubmitDisabled ? themeStore.disabledColor : themeStore.primaryColor)
+                .foregroundStyle(themeStore.onPrimaryColor)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .disabled(isSubmitDisabled)
     }
@@ -102,8 +97,10 @@ struct VerifyOTPView: View {
 extension Container {
 
     func verifyOTPView() -> Factory<VerifyOTPView> {
-        Factory(self) { @MainActor in
-            VerifyOTPView(viewModel: self.resetPasswordViewModel())
+        Factory(self) {
+            MainActor.assumeIsolated {
+                VerifyOTPView(viewModel: self.resetPasswordViewModel())
+            }
         }
     }
 }

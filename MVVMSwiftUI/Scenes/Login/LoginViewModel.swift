@@ -12,8 +12,8 @@ final class LoginViewModel {
 
     // MARK: - Dependencies
 
-    @ObservationIgnored
-    @Injected(\.authenStore) private var authenStore
+    @Injected(\.authUseCase)
+    @ObservationIgnored private var authUseCase
 
     // MARK: - State
 
@@ -24,8 +24,7 @@ final class LoginViewModel {
     func login(email: String, password: String) async throws {
         isLoading = true
         defer { isLoading = false }
-        
-        try await authenStore.loggedIn()
+        try await authUseCase.login(email: email, password: password)
     }
 }
 
@@ -34,8 +33,10 @@ final class LoginViewModel {
 extension Container {
 
     var loginViewModel: Factory<LoginViewModel> {
-        Factory(self) { @MainActor in
-            LoginViewModel()
+        Factory(self) {
+            MainActor.assumeIsolated {
+                LoginViewModel()
+            }
         }
     }
 }

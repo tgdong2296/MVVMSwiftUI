@@ -65,11 +65,26 @@ struct RepoDetailView: View {
 
     private var statsSection: some View {
         HStack {
-            statItem(icon: "star.fill", color: .yellow, value: viewModel.repository.stargazersCount.formatted(), label: "Stars")
+            statItem(
+                icon: "star.fill",
+                color: .yellow,
+                value: viewModel.repository.stargazersCount.formatted(),
+                label: "Stars"
+            )
             Spacer()
-            statItem(icon: "tuningfork", color: .blue, value: viewModel.repository.forksCount.formatted(), label: "Forks")
+            statItem(
+                icon: "tuningfork",
+                color: .blue,
+                value: viewModel.repository.forksCount.formatted(),
+                label: "Forks"
+            )
             Spacer()
-            statItem(icon: "exclamationmark.circle.fill", color: .red, value: viewModel.repository.openIssuesCount.formatted(), label: "Issues")
+            statItem(
+                icon: "exclamationmark.circle.fill",
+                color: .red,
+                value: viewModel.repository.openIssuesCount.formatted(),
+                label: "Issues"
+            )
         }
         .padding(.vertical, 8)
     }
@@ -125,8 +140,10 @@ struct RepoDetailView: View {
 
 extension Container {
     func repoDetailView(repository: GitHubRepo) -> Factory<RepoDetailView> {
-        Factory(self) { @MainActor in
-            RepoDetailView(viewModel: Container.shared.repoDetailViewModel(repository: repository).resolve())
+        Factory(self) {
+            MainActor.assumeIsolated {
+                RepoDetailView(viewModel: Container.shared.repoDetailViewModel(repository: repository).resolve())
+            }
         }
     }
 }

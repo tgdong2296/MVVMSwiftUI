@@ -17,14 +17,17 @@ extension Container {
     }
     
     var tokenRefreshCoordinator: Factory<TokenRefreshCoordinator> {
-        Factory(self) { @MainActor in
-            TokenRefreshCoordinator(provider: MoyaProvider<AuthTarget>())
+        Factory(self) {
+            MainActor.assumeIsolated {
+                TokenRefreshCoordinator(provider: MoyaProvider<AuthTarget>())
+            }
         }
         .singleton
     }
     
     /// Creates an `APIService` for the given `BaseTargetType`.
     /// In DEV mode with mock enabled, it uses stubbed JSON responses.
+    @MainActor
     func apiService<T: BaseTargetType>(stubMapping: ((T) -> String)? = nil) -> APIService<T> {
         let tokenManager = self.tokenManager()
         let refreshCoordinator = self.tokenRefreshCoordinator()

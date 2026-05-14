@@ -29,7 +29,7 @@ enum GitHubAPI: BaseTargetType, Sendable {
         switch self {
         case .searchRepositories:
             return "/search/repositories"
-        case .getRepository(let owner, let repo):
+        case let .getRepository(owner, repo):
             return "/repos/\(owner)/\(repo)"
         }
     }
@@ -40,7 +40,7 @@ enum GitHubAPI: BaseTargetType, Sendable {
 
     nonisolated var task: Moya.Task {
         switch self {
-        case .searchRepositories(let query, let page, let perPage):
+        case let .searchRepositories(query, page, perPage):
             return .requestParameters(
                 parameters: [
                     "q": query,
@@ -78,7 +78,9 @@ struct GitHubSearchResponse: Decodable {
 extension Container {
     var gitHubApiService: Factory<APIService<GitHubAPI>> {
         Factory(self) {
-            self.apiService()
+            MainActor.assumeIsolated {
+                self.apiService()
+            }
         }
         .singleton
     }

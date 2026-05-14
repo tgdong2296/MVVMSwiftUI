@@ -40,9 +40,22 @@
 		9EC86A5C2FB32C000027946F /* MVVMSwiftUIUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MVVMSwiftUIUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9E2525452FB57582009B230B /* Exceptions for "MVVMSwiftUI" folder in "MVVMSwiftUI" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9EC86A442FB32BFD0027946F /* MVVMSwiftUI */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9EC86A472FB32BFD0027946F /* MVVMSwiftUI */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9E2525452FB57582009B230B /* Exceptions for "MVVMSwiftUI" folder in "MVVMSwiftUI" target */,
+			);
 			path = MVVMSwiftUI;
 			sourceTree = "<group>";
 		};
@@ -311,6 +324,8 @@
 /* Begin XCBuildConfiguration section */
 		9EC86A642FB32C000027946F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9EC86A472FB32BFD0027946F /* MVVMSwiftUI */;
+			baseConfigurationReferenceRelativePath = Environment/Development.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -374,6 +389,8 @@
 		};
 		9EC86A652FB32C000027946F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9EC86A472FB32BFD0027946F /* MVVMSwiftUI */;
+			baseConfigurationReferenceRelativePath = Environment/Production.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -430,6 +447,8 @@
 		};
 		9EC86A672FB32C000027946F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9EC86A472FB32BFD0027946F /* MVVMSwiftUI */;
+			baseConfigurationReferenceRelativePath = Environment/Development.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -437,6 +456,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MVVMSwiftUI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -461,6 +481,8 @@
 		};
 		9EC86A682FB32C000027946F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9EC86A472FB32BFD0027946F /* MVVMSwiftUI */;
+			baseConfigurationReferenceRelativePath = Environment/Production.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -468,6 +490,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MVVMSwiftUI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -492,6 +515,8 @@
 		};
 		9EC86A6A2FB32C000027946F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9EC86A472FB32BFD0027946F /* MVVMSwiftUI */;
+			baseConfigurationReferenceRelativePath = Environment/Development.xcconfig;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -513,6 +538,8 @@
 		};
 		9EC86A6B2FB32C000027946F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9EC86A472FB32BFD0027946F /* MVVMSwiftUI */;
+			baseConfigurationReferenceRelativePath = Environment/Development.xcconfig;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -534,6 +561,8 @@
 		};
 		9EC86A6D2FB32C000027946F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9EC86A472FB32BFD0027946F /* MVVMSwiftUI */;
+			baseConfigurationReferenceRelativePath = Environment/Development.xcconfig;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -553,6 +582,8 @@
 		};
 		9EC86A6E2FB32C000027946F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9EC86A472FB32BFD0027946F /* MVVMSwiftUI */;
+			baseConfigurationReferenceRelativePath = Environment/Development.xcconfig;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

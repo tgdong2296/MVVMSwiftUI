@@ -44,8 +44,10 @@ extension AppCoordinator: CoordinatorType {
 extension Container {
     
     var appCoordinator: Factory<AppCoordinator> {
-        Factory(self) { @MainActor in
-            AppCoordinator()
+        Factory(self) {
+            MainActor.assumeIsolated {
+                AppCoordinator()
+            }
         }
     }
 }
