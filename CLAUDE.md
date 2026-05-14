@@ -1,67 +1,160 @@
-# CLAUDE.md
+# MVVMSwiftUI
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+iOS app built with SwiftUI, following MVVM + Clean Architecture. Uses FactoryKit for DI,
+Moya for networking, SwiftData for local persistence, and a custom Coordinator pattern
+for navigation.
+
+---
 
 ## Commands
 
-**Build & Run:** Open `MVVMSwiftUI.xcodeproj` in Xcode and use Cmd+R. There is no CLI build command — use `xcodebuild` for scripted builds.
+**Build:**
+```bash
+xcodebuild build -project MVVMSwiftUI.xcodeproj -scheme MVVMSwiftUI \
+  -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+
+**Run tests:**
+```bash
+xcodebuild test -project MVVMSwiftUI.xcodeproj -scheme MVVMSwiftUI \
+  -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+
+**Run a single test class:**
+```bash
+xcodebuild test -project MVVMSwiftUI.xcodeproj -scheme MVVMSwiftUI \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -only-testing MVVMSwiftUITests/MyTestClass
+```
 
 **Lint:**
 ```bash
 swiftlint lint
 ```
 
-**Run tests:**
+**Lint with auto-fix:**
 ```bash
-xcodebuild test -project MVVMSwiftUI.xcodeproj -scheme MVVMSwiftUI -destination 'platform=iOS Simulator,name=iPhone 16'
+swiftlint --fix
 ```
 
-**Run a single test class:**
-```bash
-xcodebuild test -project MVVMSwiftUI.xcodeproj -scheme MVVMSwiftUI -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing MVVMSwiftUITests/MyTestClass
-```
+---
 
 ## Architecture
 
-The app follows **MVVM + Clean Architecture** with three distinct layers:
+Three-layer Clean Architecture. Dependencies always point inward:
+`Scenes → Domain ← Data`
 
-### 1. Domain Layer (`Domain/`)
-- **Entities** — plain Swift types (`ViewState`, `AppFlow`, `AppTheme`, `GitHubRepository`)
-- **Use Cases** — `*UseCaseType` protocols + `*UseCase` implementations; each has a single `execute(...)` method and registers itself with FactoryKit's `Container`
+### Domain Layer (`Domain/`)
+- **Entities** — plain Swift value types (e.g: `ViewState`, `AppFlow`, `AppTheme`, `GitHubRepository`,...). No framework imports.
+- **Use Cases** — one `execute(...)` method per use case. Protocol + implementation pair.
+  Each registers itself in `Container` at the bottom of its own file.
 
-### 2. Data Layer (`Data/`)
-- **API** — built on [Moya](https://github.com/Moya/Moya); `APIService<Target>` wraps Moya with async/await, auto token injection via `AccessTokenPlugin`, and transparent token refresh via `TokenRefreshCoordinator`. Targets conform to `BaseTargetType`. In DEV mode with `IS_DEV=YES`, `MockHelper.stubbedProvider` replaces real network calls with local JSON stubs.
-- **Local** — `DataStore` protocol over SwiftData (`ContextStore`); `UserDefaultsService` for key-value persistence
-- **Token** — `TokenManager` (singleton) holds access/refresh tokens; `TokenRefreshCoordinator` serializes concurrent refresh attempts
+### Data Layer (`Data/`)
+- **API** — `APIService<Target>` wraps Moya with async/await. Targets conform to
+  `BaseTargetType`. Token injection via `AccessTokenPlugin`. Concurrent refresh
+  serialized by `TokenRefreshCoordinator`.
+- **Local** — `DataStore` protocol backed by `ContextStore` (SwiftData).
+  Key-value storage via `UserDefaultsService`.
+- **Stubs** — when `IS_DEV=YES`, `MockHelper.stubbedProvider` replaces real network
+  calls with JSON files in `Stubs/`.
 
-### 3. Scenes / Presentation Layer (`Scenes/`)
-- **ViewModels** — marked `@Observable @MainActor final class`. Use `async/await` for all async work. Dependencies are injected via `@Injected(\.keyPath)` from FactoryKit.
-- **Views** — SwiftUI views that observe their `@Observable` ViewModel directly (no `@StateObject`/`@ObservedObject`)
-- **Common views** — `CommonContainerView` wraps content with a `ViewState`-driven loading/error overlay
+### Presentation Layer (`Scenes/`)
+- **ViewModels** — `@Observable @MainActor final class`. All async work uses
+  `async/await`. Dependencies injected via `@Injected(\.keyPath)`.
+- **Views** — plain SwiftUI. Observe ViewModel directly — no `@StateObject` or
+  `@ObservedObject`.
+- **CommonContainerView** — wraps content with a `ViewState`-driven loading/error
+  overlay. Use it for all screens that load remote data.
 
-### Navigation (Coordinator Pattern)
-Navigation uses a custom **Coordinator** pattern:
-- `CoordinatorType` protocol holds a `path: [Route]` array and requires `rootView()` + `redirect(_:)` implementations
-- `CoordinatorNavigationView` renders `NavigationStack` driven by the coordinator's path
-- `AuthenCoordinator` manages the unauthenticated flow; `AppCoordinator` manages the authenticated flow
-- The root `MVVMSwiftUIApp` switches between coordinators based on `AuthenStore.flow`
+### Navigation
+Coordinator pattern. Every flow has one coordinator.
+`CoordinatorType` requires `rootView()` + `redirect(_:)`. Navigation is driven by
+`path: [Route]` — push by appending, pop by removing.
+`CoordinatorNavigationView` renders the `NavigationStack` driven by the coordinator's path.
 
 ### Dependency Injection
-[FactoryKit](https://github.com/hmlongco/Factory) is used exclusively. Each type registers itself in a `Container` extension at the bottom of its own file. Singletons (stores, token manager) use `.singleton`. Use `@Injected(\.keyPath)` in ViewModels; use `Container.shared.factory().resolve()` in coordinators for view creation.
+FactoryKit only. Rules:
+- Register in a `Container` extension at the **bottom of the same file** as the type
+- Singletons use `.singleton`
+- ViewModels use `@Injected(\.keyPath)`
+- Coordinators use `Container.shared.factory().resolve()`
 
 ### Validation
-`@Validate` is a custom `@propertyWrapper` used directly in SwiftUI Views (not ViewModels). Combine `ValidationRule` conformances (`EmailRule`, `PasswordRule`, `NotEmptyStringRule`) and use `ValidationModifier` to display error messages.
+`@Validate` property wrapper — used in **Views**, not ViewModels.
+Combine `ValidationRule` conformances (`EmailRule`, `PasswordRule`, `NotEmptyStringRule`)
+and attach `ValidationModifier` to display inline errors.
 
 ### Environments
-Build configs live in `Environment/Development.xcconfig` and `Production.xcconfig`. Access values at runtime via `Environments.*` static properties (reads from `Info.plist` via `Bundle.main.infoDictionary`). `Environments.isDEV` controls mock API usage.
+Build configs: `Environment/Development.xcconfig`, `Production.xcconfig`.
+Access at runtime via `Environments.*` (reads `Info.plist`).
+`Environments.isDEV` gates mock API usage.
 
 ### Combine Utilities
 - `.asDriver()` — main-thread, error-silencing, replay(1) publisher
-- `.asObservable()` — maps error type to `Error` for use in chains that expect `AnyPublisher<T, Error>`
+- `.asObservable()` — maps error type to `Error` for chains that expect `AnyPublisher<T, Error>`
 
-## SwiftLint Rules to Note
-- All classes **must** be `final` (custom `final_class` rule)
+---
+
+## Code Conventions
+
+- All classes **must** be `final` — SwiftLint enforces this with a custom `final_class` rule
+- No `force_cast`, `force_try`, or `force_unwrapping` — these are lint **errors**
 - Line length warning at 120 characters
-- `force_cast`, `force_try`, `force_unwrapping` are errors — avoid them
-- `.drive(...)` and `.subscribe(...)` calls must be broken across lines (one call per line)
-- `no_extension_access_modifier` is enabled — don't add `public`/`internal` to extension members
+- `.drive(...)` and `.subscribe(...)` calls must be broken to one call per line
+- No access modifiers on extension members (`no_extension_access_modifier` rule)
+- Use `async/await` everywhere — no Combine for async work in new code
+- `@MainActor` on all ViewModels — never dispatch to main manually
+
+---
+
+## Testing
+
+- Unit tests live in `MVVMSwiftUITests/`
+- UI tests live in `MVVMSwiftUIUITests/`
+- Inject mocks via protocol — never use `@testable import` to reach private state
+- Use cases are tested by injecting a mock `DataStore` or mock API service
+- ViewModels are tested by injecting mock use cases via FactoryKit overrides
+
+**FactoryKit override pattern in tests:**
+```swift
+Container.shared.myUseCase.register { MockMyUseCase() }
+```
+Reset after each test with `Container.shared.reset()`.
+
+---
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `MVVMSwiftUIApp.swift` | Entry point, root coordinator switch |
+| `Application/Aggregates/ThemeStore.swift` | Global theme state, contain design token |
+| `Data/API/APIService.swift` | Core network layer |
+| `Data/Token/TokenRefreshCoordinator.swift` | Serializes concurrent token refreshes |
+| `Domain/Entities/ViewState.swift` | Loading/error/success state used app-wide |
+| `Scenes/Common/CommonContainerView.swift` | ViewState-driven screen wrapper |
+| `Environment/Environments.swift` | Runtime config access |
+
+---
+
+## Gotchas
+
+- **Mock API is tied to `IS_DEV=YES`**, not the scheme name. If mocks aren't firing,
+  check the build setting, not the target.
+- **`TokenManager` is a singleton** — never resolve a second instance or token state
+  will desync. Always use `@Injected(\.tokenManager)`.
+- **SwiftData context is not thread-safe** — all `ContextStore` calls must happen on
+  the main actor. Don't call them from a background task without `await MainActor.run {}`.
+- **`@Validate` is View-only** — it uses `@State` internally and will silently break
+  if moved into a ViewModel or used outside a SwiftUI body.
+- **Coordinator `path` is the source of truth** — never navigate by presenting views
+  directly. All navigation goes through `redirect(_:)`.
+- **JSON stubs must match the target file name** — `MockHelper` resolves stubs by
+  target name. A missing stub silently returns empty data, not an error.
+
+---
+
+## Required
+
+- Always run SwiftLint after completing all work.
+- Always run unit tests after completing all work before creating pull request.
