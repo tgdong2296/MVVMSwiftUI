@@ -15,6 +15,7 @@
 		9E1E18002FB36F310041ADDB /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 9E1E17FF2FB36F310041ADDB /* SDWebImageSwiftUI */; };
 		9E1E18112FB374D80041ADDB /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9E1E18102FB374D80041ADDB /* FactoryKit */; };
 		9E1E18132FB374D80041ADDB /* FactoryTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 9E1E18122FB374D80041ADDB /* FactoryTesting */; };
+		9E1E18152FB374D80041ADDB /* FactoryKit in Frameworks (Tests) */ = {isa = PBXBuildFile; productRef = 9E1E18102FB374D80041ADDB /* FactoryKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +92,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9E1E18132FB374D80041ADDB /* FactoryTesting in Frameworks */,
+				9E1E18152FB374D80041ADDB /* FactoryKit in Frameworks (Tests) */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,6 +178,7 @@
 			name = MVVMSwiftUITests;
 			packageProductDependencies = (
 				9E1E18122FB374D80041ADDB /* FactoryTesting */,
+				9E1E18102FB374D80041ADDB /* FactoryKit */,
 			);
 			productName = MVVMSwiftUITests;
 			productReference = 9EC86A522FB32C000027946F /* MVVMSwiftUITests.xctest */;
