@@ -34,8 +34,12 @@ struct VerifyOTPView: View {
                     headerView
                     otpField
                 }
+                .padding(.top, 160)
+                
+                Spacer()
 
                 verifyButton
+                    .padding(.bottom, 32)
             }
             .padding(.horizontal, 24)
         }

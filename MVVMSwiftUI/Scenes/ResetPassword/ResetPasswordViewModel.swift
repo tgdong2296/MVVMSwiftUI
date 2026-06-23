@@ -42,7 +42,7 @@ final class ResetPasswordViewModel {
             resetStep = .otpSent
             viewState = .success
         } catch {
-            viewState = .error(error.localizedDescription)
+            viewState = .error([error.localizedDescription])
         }
     }
 
@@ -53,7 +53,7 @@ final class ResetPasswordViewModel {
             resetStep = .otpVerified
             viewState = .success
         } catch {
-            viewState = .error(error.localizedDescription)
+            viewState = .error([error.localizedDescription])
         }
     }
 
@@ -64,7 +64,7 @@ final class ResetPasswordViewModel {
             resetStep = .completed
             viewState = .success
         } catch {
-            viewState = .error(error.localizedDescription)
+            viewState = .error([error.localizedDescription])
         }
     }
 

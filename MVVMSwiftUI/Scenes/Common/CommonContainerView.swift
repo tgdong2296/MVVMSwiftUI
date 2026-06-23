@@ -22,8 +22,8 @@ struct CommonContainerView<Content: View, Loading: View, ErrorContent: View>: Vi
             switch viewState {
             case .loading:
                 loadingView
-            case .error(let message):
-                errorView(message)
+            case .error(let messages):
+                errorView(messages.joined())
             case .success, .indie:
                 EmptyView()
             }

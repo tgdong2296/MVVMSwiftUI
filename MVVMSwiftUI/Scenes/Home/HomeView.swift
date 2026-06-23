@@ -25,6 +25,15 @@ struct HomeView: View {
             }
         }
         .navigationTitle("Repositories")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    coordinator.toSettings()
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+            }
+        }
         .task {
             await viewModel.loadRepositories()
         }

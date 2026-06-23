@@ -6,6 +6,7 @@
 //
 
 enum AppFlow: Identifiable {
+    case loading
     case notAuthenticated
     case authenticated
     

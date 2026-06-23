@@ -1,5 +1,5 @@
 //
-//  LoginViewModel.swift
+//  SettingsViewModel.swift
 //  MVVMSwiftUI
 //
 
@@ -8,24 +8,24 @@ import FactoryKit
 
 @Observable
 @MainActor
-final class LoginViewModel {
-    
+final class SettingsViewModel {
+
     // MARK: - Dependencies
-    
+
     @Injected(\.authUseCase)
     @ObservationIgnored private var authUseCase
-    
+
     // MARK: - State
-    
+
     var viewState: ViewState = .indie
-    
+
     // MARK: - Actions
-    
-    func login(email: String, password: String) async throws {
+
+    func logout() async {
         guard viewState != .loading else { return }
         viewState = .loading
         do {
-            try await authUseCase.login(email: email, password: password)
+            try await authUseCase.logout()
             viewState = .success
         } catch {
             viewState = .error([error.localizedDescription])
@@ -36,11 +36,11 @@ final class LoginViewModel {
 // MARK: - Factory Registration
 
 extension Container {
-    
-    var loginViewModel: Factory<LoginViewModel> {
+
+    var settingsViewModel: Factory<SettingsViewModel> {
         Factory(self) {
             MainActor.assumeIsolated {
-                LoginViewModel()
+                SettingsViewModel()
             }
         }
     }

@@ -29,7 +29,7 @@ struct LoginView: View {
     }
     
     private var isLoginDisabled: Bool {
-        !isFormValid || viewModel.isLoading
+        !isFormValid || viewModel.viewState == .loading
     }
     
     var body: some View {
@@ -41,6 +41,9 @@ struct LoginView: View {
                 emailField
                 passwordField
             }
+            .padding(.top, 160)
+            
+            Spacer()
             
             // Login Button
             loginButton
@@ -67,6 +70,7 @@ struct LoginView: View {
                 }
                 .font(.subheadline)
             }
+            .padding(.bottom, 32)
         }
         .padding(.horizontal, 24)
     }
@@ -109,7 +113,7 @@ struct LoginView: View {
             }
         } label: {
             Group {
-                if viewModel.isLoading {
+                if viewModel.viewState == .loading {
                     ProgressView()
                         .tint(.white)
                 } else {
@@ -143,3 +147,4 @@ extension Container {
     CoordinatorNavigationView(coordinator: Container.shared.authenCoordinator.resolve())
         .environment(Container.shared.themeStore.resolve())
 }
+

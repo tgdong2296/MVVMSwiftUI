@@ -73,7 +73,7 @@ final class ThemeStore: ThemeStoreType {
     var errorColor: Color { .red }
     var disabledColor: Color { .gray }
     var onPrimaryColor: Color { .white }
-    var overlayColor: Color { Color.black.opacity(0.2) }
+    var overlayColor: Color { Color.black.opacity(0.1) }
 }
 
 // MARK: - Factory Registration

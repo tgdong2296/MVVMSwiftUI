@@ -48,8 +48,12 @@ struct NewPasswordView: View {
                 passwordField
                 confirmPasswordField
             }
-
+            .padding(.top, 160)
+            
+            Spacer()
+            
             resetButton
+                .padding(.bottom, 32)
         }
         .padding(.horizontal, 24)
         .navigationTitle("New Password")

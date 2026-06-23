@@ -23,9 +23,9 @@ struct RegisterViewModelTests {
 
     // MARK: - Initial State
 
-    @Test("isLoading starts as false")
+    @Test("viewState starts as indie")
     func initialState() {
-        #expect(sut.isLoading == false)
+        #expect(sut.viewState == .indie)
     }
 
     // MARK: - Register Success
@@ -38,33 +38,31 @@ struct RegisterViewModelTests {
         #expect(mockUseCase.capturedRegisterEmail == "new@example.com")
     }
 
-    @Test("isLoading is false after successful register")
-    func isLoadingFalseAfterSuccess() async throws {
+    @Test("viewState is success after successful register")
+    func successStateAfterSuccess() async throws {
         try await sut.register(email: "new@example.com", password: "Password1")
-        #expect(sut.isLoading == false)
+        #expect(sut.viewState == .success)
     }
 
     // MARK: - Register Failure
 
-    @Test("Register failure rethrows the error")
-    func registerFailureRethrows() async {
+    @Test("Register failure sets error state")
+    func registerFailureSetsErrorState() async throws {
         mockUseCase.registerError = TestError.mock
-        var caughtError: Error?
+        try await sut.register(email: "new@example.com", password: "Password1")
 
-        do {
-            try await sut.register(email: "new@example.com", password: "Password1")
-        } catch {
-            caughtError = error
+        if case .error = sut.viewState {
+            // expected
+        } else {
+            Issue.record("Expected viewState to be .error, got \(sut.viewState)")
         }
-
-        #expect(caughtError is TestError)
     }
 
-    @Test("isLoading is false after failed register")
-    func isLoadingFalseAfterFailure() async {
+    @Test("viewState is not loading after failed register")
+    func notLoadingAfterFailure() async throws {
         mockUseCase.registerError = TestError.mock
-        try? await sut.register(email: "new@example.com", password: "Password1")
-        #expect(sut.isLoading == false)
+        try await sut.register(email: "new@example.com", password: "Password1")
+        #expect(sut.viewState != .loading)
     }
 
     @Test("Register is not called more than once per invocation")

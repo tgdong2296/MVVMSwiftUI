@@ -14,9 +14,6 @@ struct VMPatternSwiftUIApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self)
     var appDelegate
     
-    @Injected(\.authenStore)
-    var authenStore
-    
     @Injected(\.authenCoordinator)
     var authenCoordinator
     
@@ -26,21 +23,34 @@ struct VMPatternSwiftUIApp: App {
     @Injected(\.themeStore)
     var themeStore
     
+    @State var viewModel: AppViewModel = Container.shared.appViewModel.resolve()
+    
     var body: some Scene {
         WindowGroup {
             contentView
                 .preferredColorScheme(themeStore.currentTheme.colorScheme)
                 .environment(themeStore)
+                .animation(.easeInOut, value: viewModel.appFlow)
         }
     }
 
     @ViewBuilder private var contentView: some View {
-        switch authenStore.flow {
+        switch viewModel.appFlow {
+        case .loading:
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: themeStore.accentColor))
+                .task {
+                    await viewModel.loadAppFlow()
+                }
+            
         case .notAuthenticated:
             CoordinatorNavigationView(coordinator: authenCoordinator)
 
         case .authenticated:
             CoordinatorNavigationView(coordinator: appCoordinator)
+                .task {
+                    await viewModel.loadData()
+                }
         }
     }
 }

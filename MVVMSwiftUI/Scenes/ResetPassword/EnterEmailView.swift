@@ -33,8 +33,12 @@ struct EnterEmailView: View {
                 headerView
                 emailField
             }
-
+            .padding(.top, 160)
+            
+            Spacer()
+            
             submitButton
+                .padding(.bottom, 32)
         }
         .padding(.horizontal, 24)
         .navigationTitle("Reset Password")

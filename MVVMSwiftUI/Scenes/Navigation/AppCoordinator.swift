@@ -3,7 +3,8 @@ import FactoryKit
 
 enum AppRoute: Route {
     case repoDetail(id: String, repository: GitHubRepo)
-    
+    case settings
+
     var id: AppRoute { self }
 }
 
@@ -17,6 +18,10 @@ final class AppCoordinator {
     
     func toRepoDetail(id: String, repository: GitHubRepo) {
         path.append(.repoDetail(id: id, repository: repository))
+    }
+
+    func toSettings() {
+        path.append(.settings)
     }
     
     func backToRoot() {
@@ -37,6 +42,8 @@ extension AppCoordinator: CoordinatorType {
         switch path {
         case .repoDetail(_, let repository):
             Container.shared.repoDetailView(repository: repository).resolve()
+        case .settings:
+            Container.shared.settingsView().resolve()
         }
     }
 }

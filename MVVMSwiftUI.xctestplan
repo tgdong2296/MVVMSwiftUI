@@ -18,6 +18,7 @@
   },
   "testTargets" : [
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:MVVMSwiftUI.xcodeproj",
         "identifier" : "9EC86A512FB32C000027946F",
@@ -25,7 +26,6 @@
       }
     },
     {
-      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MVVMSwiftUI.xcodeproj",
         "identifier" : "9EC86A5B2FB32C000027946F",

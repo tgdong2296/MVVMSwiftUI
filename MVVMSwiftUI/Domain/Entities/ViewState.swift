@@ -9,5 +9,5 @@ enum ViewState: Equatable {
     case indie
     case loading
     case success
-    case error(String)
+    case error([String])
 }

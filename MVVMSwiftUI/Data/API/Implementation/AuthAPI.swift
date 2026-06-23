@@ -12,6 +12,7 @@ import Alamofire
 
 enum AuthAPI: BaseTargetType, Sendable {
     case login(email: String, password: String)
+    case logout
     case register(name: String, email: String, password: String)
     case requestOTP(email: String)
     case verifyOTP(email: String, otp: String)
@@ -21,6 +22,8 @@ enum AuthAPI: BaseTargetType, Sendable {
         switch self {
         case .login, .register, .requestOTP, .verifyOTP, .resetPassword:
             return false
+        default:
+            return true
         }
     }
 
@@ -28,6 +31,8 @@ enum AuthAPI: BaseTargetType, Sendable {
         switch self {
         case .login:
             return "/auth/login"
+        case .logout:
+            return "auth/logout"
         case .register:
             return "/auth/register"
         case .requestOTP:
@@ -50,6 +55,8 @@ enum AuthAPI: BaseTargetType, Sendable {
                 parameters: ["email": email, "password": password],
                 encoding: JSONEncoding.default
             )
+        case .logout:
+            return .requestPlain
         case let .register(name, email, password):
             return .requestParameters(
                 parameters: ["name": name, "email": email, "password": password],
@@ -77,6 +84,8 @@ enum AuthAPI: BaseTargetType, Sendable {
         switch self {
         case .login:
             return MockHelper.loadJSON(from: "login")
+        case .logout:
+            return Data()
         case .register:
             return MockHelper.loadJSON(from: "register")
         case .requestOTP:
@@ -95,7 +104,7 @@ extension Container {
     var authApiService: Factory<APIService<AuthAPI>> {
         Factory(self) {
             MainActor.assumeIsolated {
-                let provider = MoyaProvider<AuthAPI>(stubClosure: MoyaProvider.delayedStub(1))
+                let provider = MoyaProvider<AuthAPI>(stubClosure: MoyaProvider.delayedStub(0.5))
                 return APIService(
                     provider: provider,
                     tokenManager: self.tokenManager(),

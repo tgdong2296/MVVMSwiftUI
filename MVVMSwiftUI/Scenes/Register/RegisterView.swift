@@ -36,7 +36,7 @@ struct RegisterView: View {
     }
     
     private var isRegisterDisabled: Bool {
-        !isFormValid || viewModel.isLoading
+        !isFormValid || viewModel.viewState == .loading
     }
     
     private var confirmPasswordValidationState: ValidationState {
@@ -46,18 +46,19 @@ struct RegisterView: View {
     
     var body: some View {
         VStack(alignment: .center, spacing: 32) {
-            // Header
-            headerView
-            
-            // Form Fields
             VStack(spacing: 16) {
+                headerView
                 emailField
                 passwordField
                 confirmPasswordField
             }
+            .padding(.top, 160)
+            
+            Spacer()
             
             // Register Button
             registerButton
+                .padding(.bottom, 32)
         }
         .padding(.horizontal, 24)
     }
@@ -112,7 +113,7 @@ struct RegisterView: View {
             }
         } label: {
             Group {
-                if viewModel.isLoading {
+                if viewModel.viewState == .loading {
                     ProgressView()
                         .tint(.white)
                 } else {

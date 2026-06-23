@@ -23,9 +23,9 @@ struct LoginViewModelTests {
 
     // MARK: - Initial State
 
-    @Test("isLoading starts as false")
+    @Test("viewState starts as indie")
     func initialState() {
-        #expect(sut.isLoading == false)
+        #expect(sut.viewState == .indie)
     }
 
     // MARK: - Login Success
@@ -39,33 +39,31 @@ struct LoginViewModelTests {
         #expect(mockUseCase.capturedLoginPassword == "Password1")
     }
 
-    @Test("isLoading is false after successful login")
-    func isLoadingFalseAfterSuccess() async throws {
+    @Test("viewState is success after successful login")
+    func successStateAfterSuccess() async throws {
         try await sut.login(email: "user@example.com", password: "Password1")
-        #expect(sut.isLoading == false)
+        #expect(sut.viewState == .success)
     }
 
     // MARK: - Login Failure
 
-    @Test("Login failure rethrows the error")
-    func loginFailureRethrows() async {
+    @Test("Login failure sets error state")
+    func loginFailureSetsErrorState() async throws {
         mockUseCase.loginError = TestError.mock
-        var caughtError: Error?
+        try await sut.login(email: "user@example.com", password: "wrong")
 
-        do {
-            try await sut.login(email: "user@example.com", password: "wrong")
-        } catch {
-            caughtError = error
+        if case .error = sut.viewState {
+            // expected
+        } else {
+            Issue.record("Expected viewState to be .error, got \(sut.viewState)")
         }
-
-        #expect(caughtError is TestError)
     }
 
-    @Test("isLoading is false after failed login")
-    func isLoadingFalseAfterFailure() async {
+    @Test("viewState is not loading after failed login")
+    func notLoadingAfterFailure() async throws {
         mockUseCase.loginError = TestError.mock
-        try? await sut.login(email: "user@example.com", password: "wrong")
-        #expect(sut.isLoading == false)
+        try await sut.login(email: "user@example.com", password: "wrong")
+        #expect(sut.viewState != .loading)
     }
 
     @Test("Login is not called more than once per invocation")

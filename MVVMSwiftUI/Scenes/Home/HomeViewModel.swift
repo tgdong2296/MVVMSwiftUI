@@ -20,9 +20,15 @@ final class HomeViewModel {
     // MARK: - State
 
     var repositories: [GitHubRepo] = []
-    var viewState: ViewState = .indie
+    
     var searchQuery: String = "swift"
-
+    
+    var loadRepositoriesState: ViewState = .indie
+    
+    var viewState: ViewState {
+        return combine([loadRepositoriesState])
+    }
+    
     // MARK: - Pagination
 
     private var currentPage: Int = 1
@@ -33,8 +39,8 @@ final class HomeViewModel {
     // MARK: - Actions
 
     func loadRepositories() async {
-        guard viewState != .loading else { return }
-        viewState = .loading
+        guard loadRepositoriesState != .loading else { return }
+        loadRepositoriesState = .loading
         currentPage = 1
         hasMorePages = true
 
@@ -46,9 +52,9 @@ final class HomeViewModel {
             )
             repositories = items
             hasMorePages = items.count == perPage
-            viewState = .success
+            loadRepositoriesState = .success
         } catch {
-            viewState = .error(error.localizedDescription)
+            loadRepositoriesState = .error([error.localizedDescription])
         }
     }
 

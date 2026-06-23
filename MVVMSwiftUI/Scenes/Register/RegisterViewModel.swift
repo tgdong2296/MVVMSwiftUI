@@ -17,14 +17,19 @@ final class RegisterViewModel {
 
     // MARK: - State
 
-    var isLoading: Bool = false
+    var viewState: ViewState = .indie
 
     // MARK: - Actions
 
     func register(email: String, password: String) async throws {
-        isLoading = true
-        defer { isLoading = false }
-        try await authUseCase.register(name: "", email: email, password: password)
+        guard viewState != .loading else { return }
+        viewState = .loading
+        do {
+            try await authUseCase.register(name: "", email: email, password: password)
+            viewState = .success
+        } catch {
+            viewState = .error([error.localizedDescription])
+        }
     }
 }
 

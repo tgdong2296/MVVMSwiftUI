@@ -11,6 +11,7 @@ import FactoryKit
 @MainActor
 protocol AuthUseCaseType: AnyObject {
     func login(email: String, password: String) async throws
+    func logout() async throws
     func register(name: String, email: String, password: String) async throws
     func requestOTP(email: String) async throws
     func verifyOTP(email: String, otp: String) async throws
@@ -24,15 +25,21 @@ final class AuthUseCase: AuthUseCaseType {
 
     @Injected(\.authApiService)
     private var authService
-    @Injected(\.authenStore)
-    private var authenStore
+    
+    @Injected(\.appStateStore)
+    private var appStateStore
 
     func login(email: String, password: String) async throws {
         _ = try await authService.requestWrapped(
             .login(email: email, password: password),
             type: EmptyResponse.self
         )
-        authenStore.flow = .authenticated
+        appStateStore.update(.authenticated)
+    }
+    
+    func logout() async throws {
+        _ = try await authService.requestVoid(.logout)
+        appStateStore.update(.notAuthenticated)
     }
 
     func register(name: String, email: String, password: String) async throws {

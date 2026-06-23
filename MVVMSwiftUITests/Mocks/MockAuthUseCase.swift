@@ -10,12 +10,14 @@ import Foundation
 final class MockAuthUseCase: AuthUseCaseType {
 
     var loginError: Error?
+    var logoutError: Error?
     var registerError: Error?
     var requestOTPError: Error?
     var verifyOTPError: Error?
     var resetPasswordError: Error?
 
     private(set) var loginCallCount = 0
+    private(set) var logoutCallCount = 0
     private(set) var registerCallCount = 0
     private(set) var requestOTPCallCount = 0
     private(set) var verifyOTPCallCount = 0
@@ -37,6 +39,11 @@ final class MockAuthUseCase: AuthUseCaseType {
         capturedLoginEmail = email
         capturedLoginPassword = password
         if let error = loginError { throw error }
+    }
+
+    func logout() async throws {
+        logoutCallCount += 1
+        if let error = logoutError { throw error }
     }
 
     func register(name: String, email: String, password: String) async throws {
