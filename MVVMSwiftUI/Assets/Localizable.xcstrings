@@ -1,0 +1,96 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Confirm new password" : {
+
+    },
+    "Create new password" : {
+
+    },
+    "Details" : {
+
+    },
+    "Don't have an account?" : {
+
+    },
+    "Enter new password" : {
+
+    },
+    "Enter OTP code" : {
+
+    },
+    "Enter verification code" : {
+
+    },
+    "Enter your email" : {
+
+    },
+    "Enter your new password below." : {
+
+    },
+    "Enter your password" : {
+
+    },
+    "Error" : {
+
+    },
+    "Forgot Password?" : {
+
+    },
+    "Login" : {
+
+    },
+    "Logout" : {
+
+    },
+    "New Password" : {
+
+    },
+    "OK" : {
+
+    },
+    "Open in GitHub" : {
+
+    },
+    "Password Reset" : {
+
+    },
+    "Re-enter your password" : {
+
+    },
+    "Register" : {
+
+    },
+    "Repositories" : {
+
+    },
+    "Reset Password" : {
+
+    },
+    "Retry" : {
+
+    },
+    "Send OTP" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Verify" : {
+
+    },
+    "Verify OTP" : {
+
+    },
+    "We'll send a verification code to your email address." : {
+
+    },
+    "We've sent a code to **%@**." : {
+
+    },
+    "Your password has been reset successfully." : {
+
+    }
+  },
+  "version" : "1.2"
+}

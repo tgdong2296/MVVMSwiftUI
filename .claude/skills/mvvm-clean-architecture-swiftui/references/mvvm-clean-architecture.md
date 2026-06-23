@@ -24,7 +24,7 @@ Scenes  ────────────────────────
   Navigation        CoordinatorType, Route, CoordinatorNavigationView,
                     and one *Coordinator per flow.
   Common            Reusable UI components.
-  {FeatureName}/    One folder per screen group — View + ViewModel pair (and sub-views if have).
+  {FeatureName}/    One folder per screen group — View + ViewModel pair (and sub-views if any).
 
 Services  ────────────────────────────────────────────────────────────────────
   {Provider}/       Third-party SDK or external service wrappers behind protocol interfaces.
@@ -51,69 +51,91 @@ Rule: **Dependencies only point inward.** A lower layer must never import a high
 
 | Type | Suffix | Layer | Mutable state? |
 |------|--------|-------|----------------|
-| Domain value | (none) | Domain/Entities | No (`struct`, `class`) |
+| Domain value | (none) | Domain/Entities | No (`struct` or `enum`) |
 | Use Case | `UseCase` | Domain/UseCase | No — stateless logic |
 | Global Store | `Store` | Application/Aggregates | Yes (`@Observable`) |
 | ViewModel | `ViewModel` | Scenes/{Feature} | Yes (`@Observable`) |
 | Service | `Service` | Data or Services | No (`struct` or `final class`) |
 | API target | `API` | Data | No (`enum`) |
-| Coordinator | `Coordinator` | Scenes/Navigation | Path only (`@Observable`) |
+| Coordinator | `Coordinator` | Scenes/Navigation | Navigation `path` only — no logic, no feature state (`@Observable`) |
 
 ### UseCase vs ViewModel vs Store
 
-- **UseCase** — contains business logic for one domain action (e.g., `authentication`, `search`,...). Stateless; calls API services, handle business logic and returns results or throws. Registered as `.singleton`.
-- **ViewModel** — orchestrates state for one screen. Holds `ViewState` and screen-specific data. Calls use cases — **never** call services directly. Registered as non-singleton.
-- **Store (global)** — Holds state that must survive across flows (e.g: auth state, theme, purchase state,...). Injected via `@Environment` into the view hierarchy. Registered as `.singleton`.
+- **UseCase** — owns the business logic for one **domain/feature** (e.g. `auth`, `search`), not for a single action. It groups all related functions (e.g. `AuthUseCase` exposes `login`, `logout`, `register`, `requestOTP`, `verifyOTP`, `resetPassword`) — there is no "single `execute(...)`" rule. Stateless; calls API services, applies business rules, returns results or throws. May inject a global `Store` to mutate app-wide state. Registered as `.singleton`.
+- **ViewModel** — orchestrates state for one screen. Holds per-section `ViewState`s and screen-specific data. Calls Use Cases — **never** calls services or API targets directly. Registered as non-singleton.
+- **Coordinator** — pure navigation router for one flow. Holds **no business logic and no feature/domain state** — only the navigation `path`. Its methods do nothing but append/remove routes; any condition or data decision belongs in a ViewModel or Use Case.
+- **Store (global)** — holds state that must survive across flows (e.g. `AppStateStore`'s `AppFlow`, `ThemeStore`). Registered as `.singleton`. Consumed two ways: **Views** read a root-injected store via `@Environment` (here, `ThemeStore`); **ViewModels and Use Cases** that read or mutate global state inject the store via `@Injected(\.storeKeyPath)` (e.g. `AuthUseCase` and `AppViewModel` inject `appStateStore`). Mutate flow state only through the store's own method (`appStateStore.update(_:)`).
 
 ## ViewState Lifecycle
 
 ```
 .indie  ──►  .loading  ──►  .success
-                        └──►  .error(String)
+                        └──►  .error([String])
 ```
 
-Every ViewModel async function that triggers a async call must:
+`ViewState.error` carries a `[String]` (array of messages), so several failed sections can surface their errors at once.
 
-1. Guard against duplicate calls: `guard viewState != .loading else { return }`.
-2. Set `viewState = .loading` before the first `await`.
-3. Set `viewState = .success` on the happy path.
-4. Set `viewState = .error(message)` in all catch blocks.
+Each independent async section owns its **own** stored `ViewState`. The screen exposes a single **computed** `viewState` that folds the section states via the `combine(_:)` helper — any `.error` wins (messages merged), then `.loading`, then `.indie`, else `.success`:
 
-Each screen will have a viewState property to represent the loading state of the entire screen. However, it can also be divided into multiple smaller states for each async task to reflect individual parts of the UI independently.
+```swift
+var loadRepositoriesState: ViewState = .indie
+var viewState: ViewState { combine([loadRepositoriesState]) }
+```
+
+Every async function in a ViewModel that triggers a network or storage call must:
+
+1. Guard against duplicate calls on its own section state: `guard loadXState != .loading else { return }`.
+2. Set `loadXState = .loading` before the first `await`.
+3. Set `loadXState = .success` on the happy path.
+4. Set `loadXState = .error([message])` in all `catch` blocks.
+
+A single-section screen still declares one section state plus the computed `viewState`.
 
 ## ViewModel–UseCase Injection Pattern
 
+`@ObservationIgnored` is required on every `@Injected` property inside an `@Observable` type (ViewModels, Stores). It tells the Observation framework to ignore the property so FactoryKit's lazy resolution works correctly. Use Cases are **not** `@Observable`, so their injected services use `@Injected` alone — no `@ObservationIgnored`.
+
 ```swift
+// ViewModel — @Observable, so @ObservationIgnored is required
 @Observable
 @MainActor
-final class HomeViewModel {
+final class ProductListViewModel {
 
-    @Injected(\.searchRepositoriesUseCase)
-    @ObservationIgnored private var searchRepositoriesUseCase
+    @Injected(\.productUseCase)
+    @ObservationIgnored private var productUseCase
+}
+
+// UseCase — not @Observable, so @ObservationIgnored is NOT needed
+@MainActor
+final class ProductUseCase: ProductUseCaseType {
+
+    @Injected(\.productApiService)
+    private var apiService
 }
 ```
 
 ## View–ViewModel Binding Pattern
 
 ```swift
-struct HomeView: View {
+struct ProductListView: View {
 
-    @State var viewModel: HomeViewModel   // ← @State, not @StateObject
+    @State var viewModel: ProductListViewModel   // ← @State, not @StateObject
 
     var body: some View {
         CommonContainerView(viewState: viewModel.viewState) {
             // content
         }
-        .task { await viewModel.loadRepositories() }
+        .task { await viewModel.loadProducts() }
     }
 }
 
-// Container registration — ViewModel is resolved inside the View factory
+// Container registration — ViewModel resolved inside the View factory
+// Note: use a func (not var) so each call returns a fresh non-singleton View+ViewModel pair
 extension Container {
-    func homeView() -> Factory<HomeView> {
+    func productListView() -> Factory<ProductListView> {
         Factory(self) {
             MainActor.assumeIsolated {
-                HomeView(viewModel: Container.shared.homeViewModel())
+                ProductListView(viewModel: Container.shared.productListViewModel())
             }
         }
     }

@@ -4,61 +4,75 @@
 
 ```
 {AppName}/
-├── {AppName}App.swift                # App entry point — injects global stores
-├── AppDelegate.swift                 # UIApplicationDelegate
 ├── Info.plist
 │
 ├── Domain/                           # Pure Swift — zero framework dependencies
-│   ├── Entities/                     # Value types: Identifiable, Hashable, Codable, Sendable
-│   │   ├── AppTheme.swift            # Theme definition (light/dark/system)
-│   │   ├── ViewState.swift           # .indie | .loading | .success | .error(String)
-│   │   ├── {Name}.swift
+│   ├── Entities/                     # Value types: Decodable/Codable, Identifiable, Hashable, Sendable
+│   │   ├── {AppTheme}.swift          # Theme definition — exact name varies per project
+│   │   ├── {AppFlow}.swift           # .loading | .notAuthenticated | .authenticated — top-level app flow
+│   │   ├── {ViewState}.swift         # .indie | .loading | .success | .error([String]) — exact name varies
+│   │   ├── {Name}.swift              # Feature domain entity
 │   │   └── {Name}.swift
 │   └── UseCase/                      # One subfolder per feature domain
 │       ├── {Feature}/
+│       │   ├── {Name}UseCase.swift
 │       │   └── {Name}UseCase.swift
 │       └── {Feature}/
+│           ├── {Name}UseCase.swift
 │           └── {Name}UseCase.swift
 │
 ├── Application/                      # Cross-cutting app-layer concerns
-│   ├── Aggregates/                   # Global app-level stores only
-│   │   ├── {Name}Store.swift         
-│   │   └── ThemeStore.swift          # Color scheme management, persisted via UserDefaults
+│   ├── Aggregates/                   # Global app-level stores only (observable singletons)
+│   │   ├── {AppStateStore}.swift     # Owns AppFlow (loading/auth state) — exact name varies per project
+│   │   └── {ThemeStore}.swift        # Color scheme management — exact name varies per project
 │   ├── Supports/                     # Swift/SwiftUI extensions and utilities
 │   └── Validations/                  # Validation Rules and Validators
 │
 ├── Data/                             # Infrastructure: network, storage, mocks
 │   ├── API/
-│   │   ├── Base/                     # Shared networking primitives
+│   │   ├── Base/                     # Shared networking primitives — project-provided, do not recreate
 │   │   │   ├── BaseTargetType.swift  # Moya TargetType extension
 │   │   │   ├── APIService.swift      # Generic async/await request executor
-│   │   │   ├── APIContainer.swift    # Factory registration helpers
+│   │   │   ├── APIContainer.swift    # Factory registration helpers (apiService(stubMapping:))
 │   │   │   ├── APIError.swift        # Typed error enum
 │   │   │   ├── APIErrorParser.swift
 │   │   │   └── APIResponse.swift     # Generic wrapped response type
-│   │   ├── Implementation/           # Feature-specific Moya targets
+│   │   ├── Implementation/           # Feature-specific Moya targets — one file per feature
 │   │   │   ├── {Feature}API.swift
 │   │   │   └── {Feature}API.swift
-│   │   └── Token/                    # JWT lifecycle management
+│   │   └── Token/                    # JWT lifecycle management — project-provided
+│   │       ├── TokenManager.swift    # Token storage and access
+│   │       └── TokenRefreshCoordinator.swift  # Serializes concurrent token refreshes
 │   ├── Local/
-│   │   ├── SwiftData/                # Storage data in local with SwiftDate
-│   │   └── UserDefaults/             # Storage data in local with UserDefault
-│   └── Mock/                         # JSON stubs for IS_DEV stub mode
-│       ├── MockHelper.swift
-│       ├── {Name}.json
-│       └── {Name}.json
+│   │   ├── SwiftData/                # SwiftData-backed local persistence
+│   │   │   ├── DataStore.swift       # DataStore protocol
+│   │   │   └── ContextStore.swift    # SwiftData implementation (main-actor only)
+│   │   └── UserDefaults/             # Key-value local storage
+│   │       ├── UserDefaultsServiceType.swift
+│   │       └── UserDefaultsService.swift
+│   └── Mock/                         # JSON stubs for dev/stub mode
+│       ├── MockHelper.swift          # Project-provided stub loader
+│       └── {name}.json               # One file per API response
 │
 ├── Scenes/                           # SwiftUI views, ViewModels, and coordinators
 │   ├── App/
-│   │   └── {AppName}App.swift        # Root scene switcher (auth vs. main flow)
-│   ├── Navigation/                   # Coordinator infrastructure
-│   ├── Common/                       # Reusable UI components
+│   │   ├── {AppName}App.swift        # Root scene switcher (auth vs. main flow)
+│   │   └── AppDelegate.swift         # UIApplicationDelegate
+│   ├── Navigation/                   # Coordinator infrastructure — project-provided
+│   │   ├── CoordinatorType.swift     # CoordinatorType protocol definition
+│   │   ├── CoordinatorNavigationView.swift  # NavigationStack driven by coordinator path
+│   │   ├── Route.swift               # Route base protocol
+│   │   └── {Name}Coordinator.swift   # One coordinator per flow
+│   ├── Common/                       # Reusable UI components — project-provided
+│   │   ├── Common{Name}View.swift
+│   │   ├── Common{Name}View.swift
+│   │   ├── CommonContainerView.swift # ViewState-driven loading/error screen wrapper
+│   │   ├── CommonErrorView.swift
+│   │   ├── CommonLoadingView.swift
+│   │   └── ValidationModifier.swift  # Inline validation error display
 │   ├── {ScreenName}/                 # One folder per screen or screen group
-│   │   ├── {ScreenName}View.swift    # SwiftUI view
+│   │   ├── {ScreenName}View.swift    # SwiftUI view (may include sub-views / row views)
 │   │   └── {ScreenName}ViewModel.swift  # @Observable ViewModel
-│   ├── {ScreenName}/
-│   │   ├── {ScreenName}View.swift
-│   │   └── {ScreenName}ViewModel.swift
 │   └── {ScreenName}/
 │       ├── {ScreenName}View.swift
 │       └── {ScreenName}ViewModel.swift
@@ -81,16 +95,18 @@
 ## Layer Responsibilities
 
 | Layer | Folder | Key Rule |
-|-------|--------|----------|
-| **Domain** | `Domain/` | Pure Swift — no libraries and SDK imports |
+| ------- | -------- | ---------- |
+| **Domain** | `Domain/` | Pure Swift — no library or SDK imports |
 | **Application** | `Application/` | Global stores, extensions, validations — no network calls |
-| **Data** | `Data/` | All I/O data sources: API, SwiftData, UserDefaults, mocks |
+| **Data** | `Data/` | All I/O: API, SwiftData, UserDefaults, mocks — base classes are project-provided |
 | **Scenes** | `Scenes/` | SwiftUI views + ViewModels + coordinators — no direct API access |
 | **Services** | `Services/` | Third-party SDK wrappers behind protocol interfaces |
 
+> **Project-provided vs feature-specific**: Files in `Data/API/Base/`, `Scenes/Navigation/`, and `Scenes/Common/` are part of the project's base infrastructure — do not recreate them. New feature work always goes into `Data/API/Implementation/`, `Domain/UseCase/{Feature}/`, and `Scenes/{FeatureName}/`.
+
 ### Domain/Entities
 
-Declared in `Domain/Entities/`. Pure Swift value types — no frameworks and libraries. Conform to `Identifiable, Hashable, Codable, Sendable`. Provide `static let samples` in an extension for previews.
+Declared in `Domain/Entities/`. Pure Swift value types — no frameworks and libraries. API response entities conform to `Decodable, Identifiable, Hashable, Sendable` (full `Codable` only when also encoded); pure domain types conform to just what is semantically required (`Sendable` always). Provide `static let samples` in an extension when previews need fixtures.
 
 ### Domain/UseCase
 
@@ -100,6 +116,6 @@ Declared in `Domain/UseCase/{Feature}/`. One file per use-case group. Contains t
 
 Global state for app, any component can observe, singleton stores injected as `@environment` into the view hierarchy from the app entry point. Do **not** add feature-specific ViewModels here.
 
-### Scenes/{FeatureName}
+### Scenes/{ScreenName}
 
-Each screen folder contains exactly one View + one ViewModel. The ViewModel is declared as `@Observable @MainActor final class`, and calls use cases. The View declares the ViewModel as `@State var viewModel: {Name}ViewModel`.
+Each screen folder contains one ViewModel and one View (the primary view plus any sub-views or row views for the screen). The ViewModel is declared as `@Observable @MainActor final class`, and calls use cases. The View declares the ViewModel as `@State var viewModel: {Name}ViewModel`.
